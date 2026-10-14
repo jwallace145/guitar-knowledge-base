@@ -22,3 +22,5 @@ It is a living document. Pages get revised as understanding improves.
 - Releases and the changelog are managed by Release Please from Conventional Commits.
 
 Source: [jwallace145/guitar-knowledge-base](https://github.com/jwallace145/guitar-knowledge-base).
+
+<!-- test -->
