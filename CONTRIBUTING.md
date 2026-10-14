@@ -33,6 +33,10 @@ Nobody pushes to `main`, ever. The branch ruleset blocks it.
    - Rebase keeps each commit, so each commit must pass commitlint on its own.
 6. The head branch is deleted automatically on merge.
 
+Dependabot PRs are the one exception to per-commit linting: Dependabot writes commit
+bodies that cannot be changed, so CI skips the `commitlint` job for them. Always
+**squash**-merge Dependabot PRs so the one-line PR title is what lands on `main`.
+
 ## Commit messages
 
 Every commit message is **one line** in
