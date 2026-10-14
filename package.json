@@ -1,0 +1,12 @@
+{
+  "name": "guitar-knowledge-base-tooling",
+  "private": true,
+  "description": "Commit message linting for the Guitar Knowledge Base. Site tooling is Python (see pyproject.toml).",
+  "scripts": {
+    "commitlint": "commitlint"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^21.2.3",
+    "@commitlint/config-conventional": "^21.2.3"
+  }
+}
