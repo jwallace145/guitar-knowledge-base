@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.cache/
+
+# Zensical build output
+site/
+
+# Node (commitlint tooling)
+node_modules/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
