@@ -114,3 +114,76 @@ def render_fretboard(fb: Fretboard) -> str:
         out.append(_dot(dot, cx, string_y(dot.string)))
     out.append("</svg>")
     return "".join(out)
+
+
+# ---------------------------------------------------------------------------
+# Chord
+
+
+def chord_window(ch: Chord) -> tuple[int, bool, int]:
+    """``(base_fret, has_nut, fret_count)`` for a chord box."""
+    fretted = [d.fret for d in ch.strings if d is not None and d.fret > 0]
+    if not fretted or max(fretted) <= CH_MIN_FRETS:
+        return 1, True, CH_MIN_FRETS
+    base = min(fretted)
+    return base, False, max(CH_MIN_FRETS, max(fretted) - base + 1)
+
+
+def render_chord(ch: Chord) -> str:
+    """Vertical chord box, low E on the left."""
+    base, has_nut, nfrets = chord_window(ch)
+    top = 36 if ch.name else 22
+    x_left = CH_PAD
+    x_right = CH_PAD + CH_STRING_GAP * 5
+    bottom = top + CH_FRET_H * nfrets
+    width = x_right + CH_PAD
+    height = bottom + 12
+    label = ch.name or "Chord diagram"
+
+    def string_x(string: int) -> float:
+        return x_left + CH_STRING_GAP * string
+
+    def fret_y(fret: int) -> float:
+        return top + CH_FRET_H * (fret - base) + CH_FRET_H / 2
+
+    out = [
+        f'<svg class="fb fb-chord" viewBox="0 0 {_n(width)} {_n(height)}" '
+        f'width="{_n(width)}" height="{_n(height)}" role="img" aria-label={quoteattr(label)}>'
+    ]
+    if ch.name:
+        out.append(_text("fb-title", width / 2, 14, ch.name))
+    if has_nut:
+        out.append(_line("fb-nut", x_left, top, x_right, top))
+    else:
+        out.append(_text("fb-fretnum", x_left - 10, fret_y(base) + 4, str(base), anchor="end"))
+    for i in range(nfrets + 1):
+        y = top + CH_FRET_H * i
+        out.append(_line("fb-fret", x_left, y, x_right, y))
+    for s in range(6):
+        x = string_x(s)
+        out.append(_line("fb-string", x, top, x, bottom))
+    barre_strings: list[int] = []
+    if ch.barre is not None:
+        barre_strings = [i for i, d in enumerate(ch.strings) if d is not None and d.fret == ch.barre]
+        first = ch.strings[barre_strings[0]]
+        assert first is not None
+        x_a, x_b = string_x(barre_strings[0]), string_x(barre_strings[-1])
+        y = fret_y(ch.barre)
+        out.append(
+            f'<rect class="{_cls("fb-barre", first.color)}" x="{_n(x_a - 9)}" y="{_n(y - 9)}" '
+            f'width="{_n(x_b - x_a + 18)}" height="18" rx="9"/>'
+        )
+        if first.label:
+            out.append(_text("fb-label", x_a, y + 3.5, first.label))
+    for i, dot in enumerate(ch.strings):
+        x = string_x(i)
+        if dot is None:
+            out.append(_text("fb-mute", x, top - 8, "×"))
+        elif dot.fret == 0:
+            out.append(f'<circle class="{_cls("fb-open", dot.color)}" cx="{_n(x)}" cy="{_n(top - 11)}" r="5"/>')
+        elif i in barre_strings:
+            continue
+        else:
+            out.append(_dot(dot, x, fret_y(dot.fret), r=9))
+    out.append("</svg>")
+    return "".join(out)
