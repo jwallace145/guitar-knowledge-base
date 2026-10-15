@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.4.0](https://github.com/jwallace145/guitar-knowledge-base/compare/v0.3.0...v0.4.0) (2026-10-15)
+
+
+### Features
+
+* **infra:** deploy to s3 and cloudfront with terraform ([#13](https://github.com/jwallace145/guitar-knowledge-base/issues/13)) ([1bdf344](https://github.com/jwallace145/guitar-knowledge-base/commit/1bdf344553e11eb8af5dead916aa79b353d0ae8c))
+
+
+### Bug Fixes
+
+* **release:** select the uv.lock root package without comparing strings ([#15](https://github.com/jwallace145/guitar-knowledge-base/issues/15)) ([940d321](https://github.com/jwallace145/guitar-knowledge-base/commit/940d321c4f986b2443c673f36a40db599b0c6976))
+
 ## [0.3.0](https://github.com/jwallace145/guitar-knowledge-base/compare/v0.2.0...v0.3.0) (2026-10-15)
 
 
