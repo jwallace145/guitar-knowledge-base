@@ -57,6 +57,8 @@ gh pr create --template ci.md        # workflows and automation
 - One idea per page. Link to related pages instead of repeating them.
 - New pages must be added to `nav` in `zensical.toml`.
 - Images go in `docs/assets/images/`.
+- Chord and scale diagrams are `chord` and `fretboard` fenced blocks, never ASCII art or
+  images. See "Diagrams" in [CONTRIBUTING.md](CONTRIBUTING.md).
 - Do not edit `CHANGELOG.md`, `version.txt`, or the version in `pyproject.toml`.
   Release Please owns them.
 

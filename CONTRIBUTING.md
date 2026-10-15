@@ -18,6 +18,41 @@ pre-commit install --hook-type commit-msg   # optional: lint commit messages loc
 Content lives in `docs/` as Markdown. Navigation is defined in `zensical.toml`
 under `nav`. When you add a page, add it to the nav.
 
+## Diagrams
+
+Chord boxes and fretboard shapes are written inline as fenced blocks and rendered to
+SVG at build time by `tools/diagrams`. Never paste ASCII diagrams or image files.
+
+A shape (scale, mode, arpeggio) is a `fretboard` block. Strings are `E A D G B e`, low
+to high. Each dot is `fret[:label][@color]`; dots have no label unless you give one.
+
+```fretboard
+title: C major, position 1
+frets: 7-10
+color: 1=red
+E: 8:1 10:2
+A: 7:3 8:4 10:5
+D: 7:6 9:7 10:1
+G: 7:2 9:3 10:4
+B: 8:5 10:6
+e: 7:7 8:1 10:2
+```
+
+A chord is a `chord` block. `frets` has six tokens low to high (`x` muted, `0` open);
+`fingers` labels the dots; `barre: N` draws a barre across every string fretted at N.
+
+```chord
+name: C
+frets: x 3@red 2 0 1@red 0
+fingers: - 3 2 - 1 -
+```
+
+- Colors: `red orange yellow green blue purple grey`. `color: 1=red 3=blue` colors by
+  label; `@color` on a dot always wins.
+- `frets: lo-hi` fixes the window; omit it to fit the dots (minimum four frets).
+- A malformed block fails `zensical build --strict` with the line and the problem.
+- Run `uv run pytest` after changing anything in `tools/diagrams`.
+
 ## Workflow: branches and pull requests only
 
 Nobody pushes to `main`, ever. The branch ruleset blocks it.
