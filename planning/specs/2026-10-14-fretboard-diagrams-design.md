@@ -103,31 +103,34 @@ and a dot outside an explicit `frets` window.
 ## Architecture
 
 ```
-src/guitar_kb/
-  __init__.py
-  diagrams/
+tools/diagrams/                      # uv workspace member "fretboard-diagrams", version 0.0.0
+  pyproject.toml
+  src/fretboard_diagrams/
     __init__.py       # fence entry points: fretboard_fence(), chord_fence()
     model.py          # Dot, Fretboard, Chord dataclasses; palette constant
     parse.py          # text -> model; all validation and error messages
     svg.py            # model -> SVG string; geometry only, styling via classes
+  tests/
 docs/assets/stylesheets/diagrams.css
-tests/
-  test_parse_fretboard.py
-  test_parse_chord.py
-  test_svg.py
 ```
 
 - `parse.py` knows nothing about SVG. `svg.py` knows nothing about the text format.
   Both are pure functions over the dataclasses, which keeps them unit-testable without
   Markdown or Zensical.
-- `diagrams/__init__.py` exposes the two SuperFences `format` callables with the
-  signature `(source, language, css_class, options, md, **kwargs) -> str`. Each calls
-  the parser, then the renderer, and wraps parse errors in `SuperFencesException`.
+- `__init__.py` exposes the two SuperFences `format` callables with the positional
+  signature `(src, language, class_name, options, md, **kwargs)`. Each calls the parser,
+  then the renderer, wraps the SVG in `<div class="fb-wrap">` (a block element, so
+  Markdown does not wrap each diagram in a `<p>` and consecutive diagrams can sit side by
+  side), and converts any exception into `SuperFencesException`.
 - `zensical.toml` gains two entries in `pymdownx.superfences.custom_fences` pointing at
   those callables by dotted path, and `extra_css = ["assets/stylesheets/diagrams.css"]`.
-- `pyproject.toml` gains a hatchling build section so `uv sync` installs `guitar_kb`
-  into the venv and Zensical can import it. Release Please keeps owning the version
-  field. `pytest` is added as a dev dependency.
+- The code lives in a uv workspace member rather than in the root project because
+  Release Please bumps the root version in `pyproject.toml`; a packaged root would make
+  `uv.lock` drift on every release. The member has a fixed version and is installed by
+  `uv sync`. `pytest` is a root dev dependency and CI runs it.
+- Zensical caches rendered pages and does not invalidate them when the renderer changes,
+  so local verification after touching `tools/diagrams` uses `build --strict --clean`
+  (CI already does).
 
 ## SVG and styling
 
