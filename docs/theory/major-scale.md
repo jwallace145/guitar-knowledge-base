@@ -47,20 +47,26 @@ are the only places adjacent scale notes are a single fret apart on the same str
 
 ## One position on the fretboard
 
-Here is C major in one position, root on the A string at the 3rd fret. Each line is a
-string, low to high, with the frets to play on it and the notes they produce:
+Here is C major in one position, starting from the C at the 8th fret of the low E
+string and climbing two octaves to the C at the 8th fret of the high e string. The roots
+are red; every other dot is labelled with its scale degree.
 
-```
-A: 3 5 7   (C D E)
-D: 3 5 7   (F G A)
-G: 4 5 7   (B C D)
-B: 5 7 8   (E F G)
-e: 5 7 8   (A B C)
+```fretboard
+title: C major, two octaves from the low E string root
+frets: 7-10
+color: 1=red
+E: 8:1 10:2
+A: 7:3 8:4 10:5
+D: 7:6 9:7 10:1
+G: 7:2 9:3 10:4
+B: 8:5 10:6
+e: 7:7 8:1
 ```
 
 Play it slowly, say the degree numbers out loud (1 2 3 4 5 6 7 1), and listen for where
-the half steps are. Proper fretboard diagrams for this and the other positions will live
-in the [Fretboard](../fretboard/index.md) section.
+the half steps are: 3 to 4 and 7 to 1 are the only places two scale notes sit one fret
+apart on the same string. The other positions, and how they connect, will live in the
+[Fretboard](../fretboard/index.md) section.
 
 ## Why it matters
 
