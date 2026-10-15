@@ -12,7 +12,7 @@
         {
           "type": "toml",
           "path": "uv.lock",
-          "jsonpath": "$.package[?(@.name=='guitar-knowledge-base')].version"
+          "jsonpath": "$.package[?(@.source.virtual)].version"
         }
       ]
     }
