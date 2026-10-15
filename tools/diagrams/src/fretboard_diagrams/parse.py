@@ -78,3 +78,48 @@ def apply_rules(dots: Iterable[Dot | None], rules: dict[str, str]) -> tuple[Dot 
             dot = replace(dot, color=rules[dot.label])
         out.append(dot)
     return tuple(out)
+
+
+def _prefixed(number: int, func, *args):
+    try:
+        return func(*args)
+    except DiagramError as exc:
+        raise DiagramError(f"line {number}: {exc}") from None
+
+
+def parse_fretboard(source: str) -> Fretboard:
+    """Parse a ``fretboard`` fence body."""
+    title = ""
+    window: tuple[int, int] | None = None
+    rules: dict[str, str] = {}
+    dots: list[Dot] = []
+    seen: set[str] = set()
+    for number, key, value in entries(source):
+        if key == "title":
+            title = value
+        elif key == "frets":
+            window = _prefixed(number, parse_window, value)
+        elif key == "color":
+            rules = _prefixed(number, parse_color_rules, value)
+        elif key in STRINGS:
+            if key in seen:
+                raise DiagramError(f"line {number}: string {key} given twice")
+            seen.add(key)
+            string = STRINGS.index(key)
+            for token in value.split():
+                fret, label, color = _prefixed(number, parse_dot_token, token)
+                dots.append(Dot(string, fret, label, color))
+        else:
+            raise DiagramError(
+                f"line {number}: unknown key {key!r} "
+                "(expected title, frets, color, or a string E A D G B e)"
+            )
+    if window is not None:
+        lo, hi = window
+        for dot in dots:
+            if dot.fret and not lo <= dot.fret <= hi:
+                raise DiagramError(
+                    f"fret {dot.fret} on string {STRINGS[dot.string]} is outside frets {lo}-{hi}"
+                )
+    colored = apply_rules(dots, rules)
+    return Fretboard(dots=tuple(d for d in colored if d is not None), title=title, window=window)
