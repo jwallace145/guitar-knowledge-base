@@ -13,6 +13,7 @@ nav = [
   { "Home" = "index.md" },
   { "Theory" = [
     { "Overview" = "theory/index.md" },
+    { "The major scale" = "theory/major-scale.md" },
   ] },
   { "Fretboard" = [
     { "Overview" = "fretboard/index.md" },
