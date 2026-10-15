@@ -1,0 +1,13 @@
+[project]
+name = "fretboard-diagrams"
+version = "0.0.0"
+description = "Build-time SVG chord and fretboard diagrams for the Guitar Knowledge Base"
+requires-python = ">=3.11"
+dependencies = ["pymdown-extensions"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fretboard_diagrams"]

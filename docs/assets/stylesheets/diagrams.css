@@ -1,0 +1,72 @@
+/* Chord and fretboard diagrams rendered by tools/diagrams. See CONTRIBUTING.md. */
+
+.fb-wrap {
+  display: inline-block;
+  vertical-align: top;
+  margin: 0 1.25rem 1rem 0;
+  max-width: 100%;
+}
+
+.fb {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  overflow: visible;
+  font-family: var(--md-text-font-family, sans-serif);
+  --fb-red: #d6453b;
+  --fb-orange: #e07b1a;
+  --fb-yellow: #d4a300;
+  --fb-green: #2f9e6b;
+  --fb-blue: #2f6fdc;
+  --fb-purple: #8a4fd6;
+  --fb-grey: #8b919a;
+}
+
+[data-md-color-scheme="slate"] .fb {
+  --fb-red: #ff6b5e;
+  --fb-orange: #ffa14a;
+  --fb-yellow: #f2c94c;
+  --fb-green: #4fc38a;
+  --fb-blue: #6ea2ff;
+  --fb-purple: #b48cff;
+  --fb-grey: #9aa3b2;
+}
+
+.fb-title { font-size: 12px; font-weight: 600; fill: var(--md-default-fg-color); }
+.fb-fretnum { font-size: 10px; fill: var(--md-default-fg-color--light); }
+.fb-mute { font-size: 13px; fill: var(--md-default-fg-color--light); }
+.fb-inlay { fill: var(--md-default-fg-color); opacity: 0.15; }
+.fb-string,
+.fb-fret { stroke: var(--md-default-fg-color); stroke-width: 1.1; stroke-opacity: 0.8; }
+.fb-nut { stroke: var(--md-default-fg-color); stroke-width: 5; }
+.fb-dot,
+.fb-barre { fill: var(--md-default-fg-color); }
+.fb-open { fill: none; stroke: var(--md-default-fg-color); stroke-width: 1.5; }
+.fb-label { font-size: 10px; font-weight: 600; fill: var(--md-default-bg-color); pointer-events: none; }
+.fb-label-3 { font-size: 7.5px; }
+.fb-label-4 { font-size: 6px; letter-spacing: -0.02em; }
+
+.fb-dot.fb-red, .fb-barre.fb-red { fill: var(--fb-red); }
+.fb-dot.fb-orange, .fb-barre.fb-orange { fill: var(--fb-orange); }
+.fb-dot.fb-yellow, .fb-barre.fb-yellow { fill: var(--fb-yellow); }
+.fb-dot.fb-green, .fb-barre.fb-green { fill: var(--fb-green); }
+.fb-dot.fb-blue, .fb-barre.fb-blue { fill: var(--fb-blue); }
+.fb-dot.fb-purple, .fb-barre.fb-purple { fill: var(--fb-purple); }
+.fb-dot.fb-grey, .fb-barre.fb-grey { fill: var(--fb-grey); }
+
+.fb-open.fb-red { stroke: var(--fb-red); stroke-width: 2.2; }
+.fb-open.fb-orange { stroke: var(--fb-orange); stroke-width: 2.2; }
+.fb-open.fb-yellow { stroke: var(--fb-yellow); stroke-width: 2.2; }
+.fb-open.fb-green { stroke: var(--fb-green); stroke-width: 2.2; }
+.fb-open.fb-blue { stroke: var(--fb-blue); stroke-width: 2.2; }
+.fb-open.fb-purple { stroke: var(--fb-purple); stroke-width: 2.2; }
+.fb-open.fb-grey { stroke: var(--fb-grey); stroke-width: 2.2; }
+
+/* Labels sit directly after their dot or barre in the markup. */
+.fb-red + .fb-label,
+.fb-orange + .fb-label,
+.fb-green + .fb-label,
+.fb-blue + .fb-label,
+.fb-purple + .fb-label,
+.fb-grey + .fb-label { fill: #fff; }
+.fb-yellow + .fb-label { fill: #1f2328; }
