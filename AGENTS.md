@@ -67,7 +67,7 @@ gh pr create --template ci.md        # workflows and automation
 
 - **Never run `terraform apply`.** Applies happen only in the `deploy` job when a
   release PR is merged. Local `fmt`, `validate`, `tflint` and read-only plans are fine.
-- **Module pins are exact** (`version = "0.4.0"`, not `~>`) in `infra/context.tf` and
+- **Module pins are exact** (`version = "0.5.0"`, not `~>`) in `infra/context.tf` and
   `infra/main.tf`. Bump both together. Never switch a module to a git or local source;
   fix module bugs upstream in `jwallace145/terraform-aws-jwall-engineering`.
 - **Do not add `ignore_changes`, `-lock=false`, or widen an IAM policy** to make a plan

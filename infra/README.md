@@ -97,7 +97,7 @@ identical.
 
 One-time steps that need the owner's credentials or the GitHub UI. In order:
 
-1. **Infra repo on module `0.4.0`** with `owner_id = 35950238` and each project's
+1. **Infra repo on module `0.5.0`** with `owner_id = 35950238` and each project's
    `repository_id` (this repo: `1418340665`) passed to `site-ci-roles`, applied. Until
    then every role assumption from this repo fails with
    `Not authorized to perform sts:AssumeRoleWithWebIdentity`.
