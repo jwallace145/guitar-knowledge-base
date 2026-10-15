@@ -1,10 +1,25 @@
 /* Chord and fretboard diagrams rendered by tools/diagrams. See CONTRIBUTING.md. */
 
+/* One diagram on its own line is centred with room around it. */
 .fb-wrap {
-  display: inline-block;
-  vertical-align: top;
-  margin: 0 1.25rem 1rem 0;
+  display: block;
+  width: fit-content;
   max-width: 100%;
+  margin: 1.75rem auto;
+}
+
+/* Wrap several fences in <div class="fb-row" markdown> for a centred, wrapping row. */
+.fb-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 1rem 2.5rem;
+  margin: 1.75rem 0;
+}
+
+.fb-row .fb-wrap {
+  margin: 0;
 }
 
 .fb {
@@ -32,9 +47,9 @@
   --fb-grey: #9aa3b2;
 }
 
-.fb-title { font-size: 12px; font-weight: 600; fill: var(--md-default-fg-color); }
-.fb-fretnum { font-size: 10px; fill: var(--md-default-fg-color--light); }
-.fb-mute { font-size: 13px; fill: var(--md-default-fg-color--light); }
+.fb-title { font-size: 13px; font-weight: 600; fill: var(--md-default-fg-color); }
+.fb-fretnum { font-size: 11px; fill: var(--md-default-fg-color--light); }
+.fb-mute { font-size: 14px; fill: var(--md-default-fg-color--light); }
 .fb-inlay { fill: var(--md-default-fg-color); opacity: 0.15; }
 .fb-string,
 .fb-fret { stroke: var(--md-default-fg-color); stroke-width: 1.1; stroke-opacity: 0.8; }
@@ -42,9 +57,9 @@
 .fb-dot,
 .fb-barre { fill: var(--md-default-fg-color); }
 .fb-open { fill: none; stroke: var(--md-default-fg-color); stroke-width: 1.5; }
-.fb-label { font-size: 10px; font-weight: 600; fill: var(--md-default-bg-color); pointer-events: none; }
-.fb-label-3 { font-size: 7.5px; }
-.fb-label-4 { font-size: 6px; letter-spacing: -0.02em; }
+.fb-label { font-size: 11px; font-weight: 600; fill: var(--md-default-bg-color); pointer-events: none; }
+.fb-label-3 { font-size: 8.5px; }
+.fb-label-4 { font-size: 7px; letter-spacing: -0.02em; }
 
 .fb-dot.fb-red, .fb-barre.fb-red { fill: var(--fb-red); }
 .fb-dot.fb-orange, .fb-barre.fb-orange { fill: var(--fb-orange); }

@@ -50,6 +50,9 @@ fingers: - 3 2 - 1 -
 - Colors: `red orange yellow green blue purple grey`. `color: 1=red 3=blue` colors by
   label; `@color` on a dot always wins.
 - `frets: lo-hi` fixes the window; omit it to fit the dots (minimum four frets).
+- A diagram sits centred on its own line. For a row of diagrams (a set of chord
+  voicings, say), put the fences inside `<div class="fb-row" markdown>` ... `</div>`
+  with a blank line after the opening tag; the row centres and wraps on phones.
 - A malformed block fails `zensical build --strict` with the line and the problem.
 - Run `uv run pytest` after changing anything in `tools/diagrams`, and build with
   `uv run zensical build --strict --clean`: Zensical caches rendered pages and does not

@@ -87,3 +87,11 @@ def test_everything_inside_viewbox_for_barre_chord():
     barre = by_class(root, "fb-barre")[0]
     x, y, bw, bh = (float(barre.get(k)) for k in ("x", "y", "width", "height"))
     assert 0 <= x and x + bw <= w and 0 <= y and y + bh <= h
+
+
+def test_dots_leave_clearance_from_neighbouring_strings():
+    root = svg_of(OPEN_C)
+    xs = sorted({float(el.get("x1")) for el in by_class(root, "fb-string")})
+    gap = xs[1] - xs[0]
+    r = float(by_class(root, "fb-dot")[0].get("r"))
+    assert gap - 2 * r >= 6
