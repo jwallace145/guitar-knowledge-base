@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/jwallace145/guitar-knowledge-base/compare/v0.2.0...v0.3.0) (2026-10-15)
+
+
+### Features
+
+* **diagrams:** open up spacing and centre diagrams on the page ([#10](https://github.com/jwallace145/guitar-knowledge-base/issues/10)) ([9a6a8c2](https://github.com/jwallace145/guitar-knowledge-base/commit/9a6a8c255bf297a806db89fa81b7c5f9f940aab3))
+
 ## [0.2.0](https://github.com/jwallace145/guitar-knowledge-base/compare/v0.1.0...v0.2.0) (2026-10-15)
 
 
