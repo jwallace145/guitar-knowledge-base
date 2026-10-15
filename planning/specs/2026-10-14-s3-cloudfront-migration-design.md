@@ -1,7 +1,7 @@
 # S3 + CloudFront migration: design
 
 Date: 2026-10-14
-Status: draft, awaiting owner review
+Status: approved (2026-10-14); implemented in PR #13, site hand-over in jwallace145/site#52
 
 ## Goal
 
