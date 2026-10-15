@@ -7,17 +7,17 @@ from xml.sax.saxutils import escape, quoteattr
 from .model import MAX_FRET, Chord, Dot, Fretboard
 
 # Fretboard (horizontal) geometry, in SVG user units (CSS px).
-FB_STRING_GAP = 20
-FB_FRET_W = 40
+FB_STRING_GAP = 26
+FB_FRET_W = 52
 FB_PAD = 24
-FB_OPEN_AREA = 26
+FB_OPEN_AREA = 30
 # Chord (vertical) geometry.
-CH_STRING_GAP = 22
-CH_FRET_H = 26
+CH_STRING_GAP = 26
+CH_FRET_H = 30
 CH_PAD = 30
 CH_MIN_FRETS = 4
-DOT_R = 8.5
-TITLE_CHAR_W = 7  # generous estimate for 12px semibold text, used to size the viewBox
+DOT_R = 10
+TITLE_CHAR_W = 7.5  # generous estimate for 13px semibold text, used to size the viewBox
 INLAY_SINGLE = frozenset({3, 5, 7, 9, 15, 17, 19, 21})
 INLAY_DOUBLE = frozenset({12, 24})
 
@@ -51,7 +51,7 @@ def _label_cls(label: str) -> str:
 def _dot(dot: Dot, cx: float, cy: float, r: float = DOT_R) -> str:
     out = f'<circle class="{_cls("fb-dot", dot.color)}" cx="{_n(cx)}" cy="{_n(cy)}" r="{_n(r)}"/>'
     if dot.label:
-        out += _text(_label_cls(dot.label), cx, cy + 3.5, dot.label)
+        out += _text(_label_cls(dot.label), cx, cy + 4, dot.label)
     return out
 
 
@@ -84,12 +84,12 @@ def render_fretboard(fb: Fretboard) -> str:
     nfrets = hi - lo + 1
     has_nut = lo == 1 or any(d.fret == 0 for d in fb.dots)
     x0 = FB_PAD + (FB_OPEN_AREA if has_nut else 0)
-    top = 30 if fb.title else 16
+    top = 36 if fb.title else 16
     bottom = top + FB_STRING_GAP * 5
     width = x0 + FB_FRET_W * nfrets + FB_PAD
     if fb.title:
         width = max(width, x0 + _title_width(fb.title) + FB_PAD)
-    height = bottom + 30
+    height = bottom + 34
     label = fb.title or "Fretboard diagram"
 
     def string_y(string: int) -> float:
@@ -103,7 +103,7 @@ def render_fretboard(fb: Fretboard) -> str:
         f'width="{_n(width)}" height="{_n(height)}" role="img" aria-label={quoteattr(label)}>'
     ]
     if fb.title:
-        out.append(_text("fb-title", x0, 14, fb.title, anchor="start"))
+        out.append(_text("fb-title", x0, 16, fb.title, anchor="start"))
     for i in range(nfrets + 1):
         x = x0 + FB_FRET_W * i
         out.append(_line("fb-fret", x, top, x, bottom))
@@ -124,7 +124,7 @@ def render_fretboard(fb: Fretboard) -> str:
             out.append(f'<circle class="fb-inlay" cx="{_n(x)}" cy="{_n(top + FB_STRING_GAP * 3.5)}" r="3"/>')
         elif fret in INLAY_SINGLE:
             out.append(f'<circle class="fb-inlay" cx="{_n(x)}" cy="{_n(top + FB_STRING_GAP * 2.5)}" r="3"/>')
-        out.append(_text("fb-fretnum", x, bottom + 18, str(fret)))
+        out.append(_text("fb-fretnum", x, bottom + 22, str(fret)))
     for dot in fb.dots:
         cx = x0 - FB_OPEN_AREA / 2 if dot.fret == 0 else fret_x(dot.fret)
         out.append(_dot(dot, cx, string_y(dot.string)))
@@ -148,7 +148,7 @@ def chord_window(ch: Chord) -> tuple[int, bool, int]:
 def render_chord(ch: Chord) -> str:
     """Vertical chord box, low E on the left."""
     base, has_nut, nfrets = chord_window(ch)
-    top = 36 if ch.name else 22
+    top = 40 if ch.name else 24
     grid_w = CH_STRING_GAP * 5
     width = grid_w + CH_PAD * 2
     if ch.name:
@@ -156,7 +156,7 @@ def render_chord(ch: Chord) -> str:
     x_left = (width - grid_w) / 2  # grid stays centred under a long name
     x_right = x_left + grid_w
     bottom = top + CH_FRET_H * nfrets
-    height = bottom + 12
+    height = bottom + 14
     label = ch.name or "Chord diagram"
 
     def string_x(string: int) -> float:
@@ -170,7 +170,7 @@ def render_chord(ch: Chord) -> str:
         f'width="{_n(width)}" height="{_n(height)}" role="img" aria-label={quoteattr(label)}>'
     ]
     if ch.name:
-        out.append(_text("fb-title", width / 2, 14, ch.name))
+        out.append(_text("fb-title", width / 2, 16, ch.name))
     if has_nut:
         out.append(_line("fb-nut", x_left, top, x_right, top))
     else:
@@ -189,20 +189,20 @@ def render_chord(ch: Chord) -> str:
         x_a, x_b = string_x(barre_strings[0]), string_x(barre_strings[-1])
         y = fret_y(ch.barre)
         out.append(
-            f'<rect class="{_cls("fb-barre", first.color)}" x="{_n(x_a - 9)}" y="{_n(y - 9)}" '
-            f'width="{_n(x_b - x_a + 18)}" height="18" rx="9"/>'
+            f'<rect class="{_cls("fb-barre", first.color)}" x="{_n(x_a - DOT_R)}" y="{_n(y - DOT_R)}" '
+            f'width="{_n(x_b - x_a + 2 * DOT_R)}" height="{_n(2 * DOT_R)}" rx="{_n(DOT_R)}"/>'
         )
         if first.label:
-            out.append(_text("fb-label", x_a, y + 3.5, first.label))
+            out.append(_text(_label_cls(first.label), x_a, y + 4, first.label))
     for i, dot in enumerate(ch.strings):
         x = string_x(i)
         if dot is None:
-            out.append(_text("fb-mute", x, top - 8, "×"))
+            out.append(_text("fb-mute", x, top - 9, "×"))
         elif dot.fret == 0:
-            out.append(f'<circle class="{_cls("fb-open", dot.color)}" cx="{_n(x)}" cy="{_n(top - 11)}" r="5"/>')
+            out.append(f'<circle class="{_cls("fb-open", dot.color)}" cx="{_n(x)}" cy="{_n(top - 12)}" r="5.5"/>')
         elif i in barre_strings:
             continue
         else:
-            out.append(_dot(dot, x, fret_y(dot.fret), r=9))
+            out.append(_dot(dot, x, fret_y(dot.fret)))
     out.append("</svg>")
     return "".join(out)

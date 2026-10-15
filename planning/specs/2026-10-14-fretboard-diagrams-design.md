@@ -120,8 +120,8 @@ docs/assets/stylesheets/diagrams.css
 - `__init__.py` exposes the two SuperFences `format` callables with the positional
   signature `(src, language, class_name, options, md, **kwargs)`. Each calls the parser,
   then the renderer, wraps the SVG in `<div class="fb-wrap">` (a block element, so
-  Markdown does not wrap each diagram in a `<p>` and consecutive diagrams can sit side by
-  side), and converts any exception into `SuperFencesException`.
+  Markdown does not wrap each diagram in a `<p>`), and converts any exception into
+  `SuperFencesException`.
 - `zensical.toml` gains two entries in `pymdownx.superfences.custom_fences` pointing at
   those callables by dotted path, and `extra_css = ["assets/stylesheets/diagrams.css"]`.
 - The code lives in a uv workspace member rather than in the root project because

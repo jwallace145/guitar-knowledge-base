@@ -106,3 +106,11 @@ def test_label_size_class_depends_on_length():
         "fb-label fb-label-3",
         "fb-label fb-label-4",
     ]
+
+
+def test_dots_leave_clearance_from_neighbouring_strings():
+    root = svg_of(C_MAJOR)
+    ys = sorted({float(el.get("y1")) for el in by_class(root, "fb-string")})
+    gap = ys[1] - ys[0]
+    r = float(by_class(root, "fb-dot")[0].get("r"))
+    assert gap - 2 * r >= 6

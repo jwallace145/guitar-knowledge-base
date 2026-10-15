@@ -53,3 +53,13 @@ def test_unexpected_renderer_error_still_fails_the_build(monkeypatch):
     monkeypatch.setattr(fretboard_diagrams, "render_fretboard", boom)
     with pytest.raises(SuperFencesException, match="fretboard diagram: renderer bug"):
         convert("```fretboard\nE: 8\n```")
+
+
+def test_fb_row_wrapper_keeps_diagrams_inside_it():
+    md = markdown.Markdown(extensions=["pymdownx.superfences", "md_in_html"], extension_configs=CONFIG)
+    html = md.convert(
+        '<div class="fb-row" markdown>\n\n```chord\nfrets: x 3 2 0 1 0\n```\n\n```chord\nfrets: 3 2 0 0 0 3\n```\n\n</div>'
+    )
+    assert html.startswith('<div class="fb-row">')
+    assert html.count('<div class="fb-wrap">') == 2
+    assert "<p>" not in html
