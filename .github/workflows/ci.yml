@@ -59,4 +59,5 @@ jobs:
         with:
           enable-cache: true
       - run: uv sync --frozen
+      - run: uv run pytest
       - run: uv run zensical build --strict --clean
