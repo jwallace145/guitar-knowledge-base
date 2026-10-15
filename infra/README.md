@@ -55,8 +55,9 @@ job must run in the `prod` environment for the same reason.
 
 This repository issues GitHub's immutable OIDC subject
 (`repo:jwallace145@35950238/guitar-knowledge-base@1418340665:...`). The roles trust it
-only when the infra repo passes `owner_id` and `repository_id` to `site-ci-roles`
-(module `>= 0.3.0`).
+only when the infra repo passes `owner_id` and `repository_id` to its CI role modules
+(`ci-plan-role`, `ci-preview-role` and `ci-apply-role`), which its `projects.tf` does
+for this project.
 
 ## Workflows
 
@@ -97,8 +98,8 @@ identical.
 
 One-time steps that need the owner's credentials or the GitHub UI. In order:
 
-1. **Infra repo on module `0.5.0`** with `owner_id = 35950238` and each project's
-   `repository_id` (this repo: `1418340665`) passed to `site-ci-roles`, applied. Until
+1. **Infra repo applied** with `owner_id = 35950238` and each project's
+   `repository_id` (this repo: `1418340665`) passed to its CI role modules. Until
    then every role assumption from this repo fails with
    `Not authorized to perform sts:AssumeRoleWithWebIdentity`.
 
