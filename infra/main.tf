@@ -7,7 +7,7 @@
 # change the production and preview record names in the zone.
 module "site" {
   source  = "jwallace145/jwall-engineering/aws"
-  version = "0.4.0"
+  version = "0.5.0"
 
   bucket_name                 = module.context.bucket_name
   bucket_regional_domain_name = "${module.context.bucket_name}.s3.us-east-1.amazonaws.com"
