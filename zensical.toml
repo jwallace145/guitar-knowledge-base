@@ -9,6 +9,8 @@ repo_url = "https://github.com/jwallace145/guitar-knowledge-base"
 repo_name = "jwallace145/guitar-knowledge-base"
 edit_uri = "edit/main/docs/"
 
+extra_css = ["assets/stylesheets/diagrams.css"]
+
 nav = [
   { "Home" = "index.md" },
   { "Theory" = [
@@ -102,6 +104,8 @@ pymdownx.mark = {}
 pymdownx.smartsymbols = {}
 pymdownx.superfences.custom_fences = [
   { name = "mermaid", class = "mermaid", format = "pymdownx.superfences.fence_code_format" },
+  { name = "fretboard", class = "fb-fence", format = "fretboard_diagrams.fretboard_fence" },
+  { name = "chord", class = "fb-fence", format = "fretboard_diagrams.chord_fence" },
 ]
 pymdownx.tabbed.alternate_style = true
 pymdownx.tabbed.combine_header_slug = true
