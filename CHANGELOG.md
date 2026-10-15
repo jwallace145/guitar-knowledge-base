@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/jwallace145/guitar-knowledge-base/compare/v0.1.0...v0.2.0) (2026-10-15)
+
+
+### Features
+
+* **diagrams:** render chord and fretboard diagrams from fenced blocks ([#8](https://github.com/jwallace145/guitar-knowledge-base/issues/8)) ([4998aaa](https://github.com/jwallace145/guitar-knowledge-base/commit/4998aaad3019569e28067cd870ec1b7389455e40))
+
 ## 0.1.0 (2026-10-15)
 
 
