@@ -66,7 +66,8 @@ Nobody pushes to `main`, ever. The branch ruleset blocks it.
    (for example `docs/intervals-page`, `fix/broken-nav-link`).
 2. Commit following the rules below.
 3. Open a pull request using one of the typed templates (see below).
-4. CI must pass: commitlint, PR title lint, and a strict Zensical build.
+4. CI must pass: commitlint, PR title lint, a strict Zensical build, and the Terraform
+   checks.
 5. Merge with **squash** or **rebase**. Merge commits are disabled.
    - Squash uses the PR title as the commit message, so the title must itself be a
      valid conventional commit.
@@ -143,7 +144,36 @@ links to each typed one. Fill in every section; delete nothing but the hints.
 The PR title must be a valid conventional commit header, because it becomes the squash
 commit message. Match the type to the template you picked.
 
-## Releases
+## Pull request previews
+
+Every pull request from a branch in this repository is built and published to
+`https://pr-<n>.preview.guitar.jwall.engineering/`. The URL is posted as a comment that
+is updated on every push; the preview is deleted when the PR closes. Fork PRs get no
+preview (no OIDC token). The preview is the production build byte for byte, so canonical
+links and the sitemap point at the production host.
+
+## Infrastructure
+
+The site is served from S3 + CloudFront, described in Terraform under
+[`infra/`](infra/) using the shared
+[`jwallace145/jwall-engineering/aws`](https://registry.terraform.io/modules/jwallace145/jwall-engineering/aws/latest)
+registry module. CI runs `terraform fmt`, `terraform validate` and `tflint` on every PR,
+and posts a `terraform plan` comment when `infra/` changed. Applies happen only in the
+`deploy` job when a release PR is merged; nobody applies locally.
+
+```sh
+cd infra
+terraform fmt -check -recursive
+terraform init -backend=false && terraform validate
+tflint --init && tflint
+```
+
+Module versions are pinned exactly in `infra/context.tf` and `infra/main.tf`; bump both
+together, and never switch a module to a git or local source. Do not add
+`ignore_changes`, `-lock=false`, or widen an IAM policy to make a plan pass; explain the
+diff in the PR instead. See [infra/README.md](infra/README.md).
+
+## Releases and deploys
 
 Releases are automated with [Release Please](https://github.com/googleapis/release-please).
 
@@ -157,5 +187,8 @@ Releases are automated with [Release Please](https://github.com/googleapis/relea
 - Merging the release PR creates the git tag and GitHub release.
 - `CHANGELOG.md` is owned by Release Please. Do not edit it by hand.
 
-Deployment is separate from releases: every push to `main` rebuilds the site and
-deploys it to GitHub Pages at <https://guitar.jwall.engineering/>.
+Merging the release PR is also the deploy. The `deploy` job in the same workflow checks
+out the tag, runs `terraform apply` in `infra/`, builds the site, syncs it to the `prod/`
+prefix of the site bucket and invalidates CloudFront, so
+<https://guitar.jwall.engineering/> always serves a tagged release. The Release workflow
+can also be run manually to redeploy the latest (or a chosen) tag.

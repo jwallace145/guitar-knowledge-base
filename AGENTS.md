@@ -1,7 +1,8 @@
 # Instructions for coding agents
 
 This repository is a Zensical static site: Markdown in `docs/`, config in
-`zensical.toml`, Python tooling via `uv`. Read [CONTRIBUTING.md](CONTRIBUTING.md) for the
+`zensical.toml`, Python tooling via `uv`, served from S3 + CloudFront by the Terraform
+in `infra/`. Read [CONTRIBUTING.md](CONTRIBUTING.md) for the
 full workflow. The rules below are the ones you MUST follow.
 
 ## Never push to `main`
@@ -62,6 +63,20 @@ gh pr create --template ci.md        # workflows and automation
 - Do not edit `CHANGELOG.md`, `version.txt`, or the version in `pyproject.toml`.
   Release Please owns them.
 
+## Infrastructure rules
+
+- **Never run `terraform apply`.** Applies happen only in the `deploy` job when a
+  release PR is merged. Local `fmt`, `validate`, `tflint` and read-only plans are fine.
+- **Module pins are exact** (`version = "0.3.0"`, not `~>`) in `infra/context.tf` and
+  `infra/main.tf`. Bump both together. Never switch a module to a git or local source;
+  fix module bugs upstream in `jwallace145/terraform-aws-jwall-engineering`.
+- **Do not add `ignore_changes`, `-lock=false`, or widen an IAM policy** to make a plan
+  pass. Explain the diff in the PR.
+- **The plan and preview jobs declare no GitHub environment** and the deploy job runs in
+  `prod`; the OIDC role trust depends on it.
+- **Owner-only steps** (AWS credentials, GitHub environments, repository variables, DNS
+  changes in other repos) are listed in the PR description, never attempted.
+
 ## Local commands
 
 ```sh
@@ -69,4 +84,5 @@ uv sync
 uv run zensical serve
 uv run zensical build --strict
 npx commitlint --from main        # lint your branch's commits before pushing
+cd infra && terraform fmt -check -recursive && terraform init -backend=false && terraform validate && tflint
 ```

@@ -1,0 +1,103 @@
+name: Preview
+
+# Publishes a live preview of each pull request to
+# https://pr-<n>.preview.guitar.jwall.engineering/ and removes it when the PR
+# closes. The build is uploaded to previews/pr-<n>/ in the project's site
+# bucket with the preview CI role; the wildcard preview distribution created
+# by infra/ routes the hostname to that prefix.
+#
+# Fork PRs receive no OIDC token, so both jobs only run for branches in this
+# repository. Neither job declares a GitHub environment: the preview role
+# trusts the `pull_request` OIDC subject, and an environment would change it.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+
+permissions: {}
+
+concurrency:
+  group: preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  AWS_REGION: us-east-1
+  # Owned by jwallace145/jwall-engineering-infra; also module.context.bucket_name in infra/.
+  S3_BUCKET: jwall-engineering-guitar-knowledge-base
+  PREVIEW_URL: https://pr-${{ github.event.pull_request.number }}.preview.guitar.jwall.engineering/
+  PREVIEW_PREFIX: previews/pr-${{ github.event.pull_request.number }}
+
+jobs:
+  deploy:
+    name: deploy
+    if: >-
+      github.event.action != 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # OIDC token for the preview role
+      pull-requests: write # sticky preview comment
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+      - run: uv sync --frozen
+      - run: uv run zensical build --strict --clean
+
+      - uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_PREVIEW_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: gha-preview-pr-${{ github.event.pull_request.number }}
+
+      - name: Sync to S3
+        # Short default TTL; the preview distribution's cache policy already
+        # caps edge caching at five minutes, so no invalidation is needed.
+        run: .github/scripts/sync-site.sh site "s3://$S3_BUCKET/$PREVIEW_PREFIX/" 300
+
+      - name: Comment preview URL
+        uses: marocchino/sticky-pull-request-comment@v3
+        with:
+          header: preview
+          message: |
+            ## Preview
+
+            **${{ env.PREVIEW_URL }}**
+
+            Built from ${{ github.event.pull_request.head.sha }}. Updated on every push; removed when the PR closes.
+
+      - name: Summary
+        run: printf '## Preview\n\n- %s\n' "$PREVIEW_URL" >> "$GITHUB_STEP_SUMMARY"
+
+  cleanup:
+    name: cleanup
+    if: >-
+      github.event.action == 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_PREVIEW_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: gha-preview-cleanup-pr-${{ github.event.pull_request.number }}
+
+      - name: Remove preview objects
+        # `aws s3 rm --recursive` on an empty prefix exits 0. Objects under
+        # previews/ also expire after 14 days by bucket lifecycle.
+        run: aws s3 rm "s3://$S3_BUCKET/$PREVIEW_PREFIX/" --recursive
+
+      - name: Update preview comment
+        uses: marocchino/sticky-pull-request-comment@v3
+        with:
+          header: preview
+          message: |
+            ## Preview
+
+            Removed: this pull request is closed.
