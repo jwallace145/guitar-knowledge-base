@@ -123,3 +123,57 @@ def parse_fretboard(source: str) -> Fretboard:
                 )
     colored = apply_rules(dots, rules)
     return Fretboard(dots=tuple(d for d in colored if d is not None), title=title, window=window)
+
+
+_FINGERS = {"-", "1", "2", "3", "4"}
+
+
+def _six(number: int, key: str, value: str) -> list[str]:
+    tokens = value.split()
+    if len(tokens) != 6:
+        raise DiagramError(f"line {number}: {key} needs six tokens, got {len(tokens)}")
+    return tokens
+
+
+def parse_chord(source: str) -> Chord:
+    """Parse a ``chord`` fence body."""
+    name = ""
+    frets: list[str] | None = None
+    fingers: list[str] | None = None
+    frets_line = 0
+    barre: int | None = None
+    rules: dict[str, str] = {}
+    for number, key, value in entries(source):
+        if key == "name":
+            name = value
+        elif key == "frets":
+            frets, frets_line = _six(number, key, value), number
+        elif key == "fingers":
+            fingers = _six(number, key, value)
+            for token in fingers:
+                if token not in _FINGERS:
+                    raise DiagramError(f"line {number}: bad finger {token!r}, expected - or 1-4")
+        elif key == "barre":
+            if not value.isdigit() or not 1 <= int(value) <= MAX_FRET:
+                raise DiagramError(f"line {number}: bad barre {value!r}, expected a fret 1-{MAX_FRET}")
+            barre = int(value)
+        elif key == "color":
+            rules = _prefixed(number, parse_color_rules, value)
+        else:
+            raise DiagramError(
+                f"line {number}: unknown key {key!r} (expected name, frets, fingers, barre, color)"
+            )
+    if frets is None:
+        raise DiagramError("chord needs a 'frets:' line with six tokens (x, 0, or fret[:label][@color])")
+    strings: list[Dot | None] = []
+    for index, token in enumerate(frets):
+        if token == "x":
+            strings.append(None)
+            continue
+        fret, label, color = _prefixed(frets_line, parse_dot_token, token)
+        if not label and fret > 0 and fingers is not None and fingers[index] != "-":
+            label = fingers[index]
+        strings.append(Dot(index, fret, label, color))
+    if barre is not None and not any(d is not None and d.fret == barre for d in strings):
+        raise DiagramError(f"barre at fret {barre} but no string is fretted there")
+    return Chord(strings=apply_rules(strings, rules), name=name, barre=barre)
