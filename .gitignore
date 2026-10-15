@@ -5,6 +5,19 @@ __pycache__/
 .venv/
 .cache/
 
+# Terraform (infra/)
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+plan.log
+plan-comment.md
+crash.log
+crash.*.log
+*_override.tf
+*_override.tf.json
+
 # Zensical build output
 site/
 
