@@ -49,7 +49,7 @@ Success looks like:
 | GitHub IDs | owner `35950238`, repository `1418340665` | `gh api repos/jwallace145/guitar-knowledge-base` |
 | OIDC subject form | immutable (`repo:jwallace145@35950238/guitar-knowledge-base@1418340665:...`) | `actions/oidc/customization/sub` |
 | Role trust | plan and preview trust `:pull_request`; apply trusts `:environment:prod` | `site-ci-roles` |
-| Module version | `0.3.0`, pinned exactly | registry |
+| Module version | `0.4.0`, pinned exactly | registry |
 
 The hosted zone ID is hardcoded in `infra/terraform.tfvars`. A `data "aws_route53_zone"`
 lookup by name would need `route53:ListHostedZones`, which the project roles do not
@@ -74,7 +74,7 @@ One root module at `infra/`, applied by CI only. Layout follows the infra repo:
 | `.tflint.hcl` | same as the infra repo (terraform recommended preset, aws ruleset) |
 | `README.md` | what the stack creates, how CI uses it, owner hand-off and cutover |
 
-Both module blocks pin `version = "0.3.0"` exactly. Module versions are not recorded in
+Both module blocks pin `version = "0.4.0"` exactly. Module versions are not recorded in
 the lock file, so a range would not be reproducible. Dependabot's `terraform` ecosystem
 is enabled for `/infra` with commit prefix `chore(deps)` so bumps arrive as PRs that
 carry a plan comment.
