@@ -51,7 +51,9 @@ fingers: - 3 2 - 1 -
   label; `@color` on a dot always wins.
 - `frets: lo-hi` fixes the window; omit it to fit the dots (minimum four frets).
 - A malformed block fails `zensical build --strict` with the line and the problem.
-- Run `uv run pytest` after changing anything in `tools/diagrams`.
+- Run `uv run pytest` after changing anything in `tools/diagrams`, and build with
+  `uv run zensical build --strict --clean`: Zensical caches rendered pages and does not
+  notice renderer changes on its own.
 
 ## Workflow: branches and pull requests only
 

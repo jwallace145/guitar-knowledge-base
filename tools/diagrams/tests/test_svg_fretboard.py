@@ -86,3 +86,23 @@ def test_every_dot_inside_viewbox():
 def test_twelfth_fret_double_inlay():
     root = svg_of("frets: 10-13\nE: 12")
     assert len(by_class(root, "fb-inlay")) == 2
+
+
+def test_long_title_widens_the_diagram():
+    title = "C major, two octaves from the low E string root"
+    root = ET.fromstring(render_fretboard(Fretboard((Dot(0, 8),), title=title)))
+    _, _, w, _ = (float(v) for v in root.get("viewBox").split())
+    title_el = by_class(root, "fb-title")[0]
+    assert float(title_el.get("x")) + len(title) * 7 <= w
+
+
+def test_label_size_class_depends_on_length():
+    root = ET.fromstring(
+        render_fretboard(Fretboard((Dot(0, 8, "1"), Dot(1, 8, "b3"), Dot(2, 8, "b13"), Dot(3, 8, "maj7"))))
+    )
+    assert [el.get("class") for el in by_class(root, "fb-label")] == [
+        "fb-label",
+        "fb-label",
+        "fb-label fb-label-3",
+        "fb-label fb-label-4",
+    ]

@@ -17,6 +17,7 @@ CH_FRET_H = 26
 CH_PAD = 30
 CH_MIN_FRETS = 4
 DOT_R = 8.5
+TITLE_CHAR_W = 7  # generous estimate for 12px semibold text, used to size the viewBox
 INLAY_SINGLE = frozenset({3, 5, 7, 9, 15, 17, 19, 21})
 INLAY_DOUBLE = frozenset({12, 24})
 
@@ -38,11 +39,24 @@ def _text(cls: str, x: float, y: float, text: str, anchor: str = "middle") -> st
     return f'<text class="{cls}" x="{_n(x)}" y="{_n(y)}" text-anchor="{anchor}">{escape(text)}</text>'
 
 
+def _label_cls(label: str) -> str:
+    """Longer labels get a size class so the stylesheet can shrink them into the dot."""
+    if len(label) >= 4:
+        return "fb-label fb-label-4"
+    if len(label) == 3:
+        return "fb-label fb-label-3"
+    return "fb-label"
+
+
 def _dot(dot: Dot, cx: float, cy: float, r: float = DOT_R) -> str:
     out = f'<circle class="{_cls("fb-dot", dot.color)}" cx="{_n(cx)}" cy="{_n(cy)}" r="{_n(r)}"/>'
     if dot.label:
-        out += _text("fb-label", cx, cy + 3.5, dot.label)
+        out += _text(_label_cls(dot.label), cx, cy + 3.5, dot.label)
     return out
+
+
+def _title_width(text: str) -> float:
+    return len(text) * TITLE_CHAR_W
 
 
 # ---------------------------------------------------------------------------
@@ -73,6 +87,8 @@ def render_fretboard(fb: Fretboard) -> str:
     top = 30 if fb.title else 16
     bottom = top + FB_STRING_GAP * 5
     width = x0 + FB_FRET_W * nfrets + FB_PAD
+    if fb.title:
+        width = max(width, x0 + _title_width(fb.title) + FB_PAD)
     height = bottom + 30
     label = fb.title or "Fretboard diagram"
 
@@ -133,10 +149,13 @@ def render_chord(ch: Chord) -> str:
     """Vertical chord box, low E on the left."""
     base, has_nut, nfrets = chord_window(ch)
     top = 36 if ch.name else 22
-    x_left = CH_PAD
-    x_right = CH_PAD + CH_STRING_GAP * 5
+    grid_w = CH_STRING_GAP * 5
+    width = grid_w + CH_PAD * 2
+    if ch.name:
+        width = max(width, _title_width(ch.name) + CH_PAD)
+    x_left = (width - grid_w) / 2  # grid stays centred under a long name
+    x_right = x_left + grid_w
     bottom = top + CH_FRET_H * nfrets
-    width = x_right + CH_PAD
     height = bottom + 12
     label = ch.name or "Chord diagram"
 

@@ -35,3 +35,21 @@ def test_malformed_block_fails_the_build():
         convert("```fretboard\nZ: 8\n```")
     with pytest.raises(SuperFencesException, match="chord diagram: chord needs a 'frets:' line"):
         convert("```chord\nname: C\n```")
+
+
+def test_blank_line_separated_fences_are_not_wrapped_in_paragraphs():
+    html = convert("```chord\nname: C\nfrets: x 3 2 0 1 0\n```\n\n```chord\nname: G\nfrets: 3 2 0 0 0 3\n```")
+    assert html.count('<div class="fb-wrap">') == 2
+    assert html.count("<svg") == 2
+    assert "<p>" not in html
+
+
+def test_unexpected_renderer_error_still_fails_the_build(monkeypatch):
+    import fretboard_diagrams
+
+    def boom(fb):
+        raise RuntimeError("renderer bug")
+
+    monkeypatch.setattr(fretboard_diagrams, "render_fretboard", boom)
+    with pytest.raises(SuperFencesException, match="fretboard diagram: renderer bug"):
+        convert("```fretboard\nE: 8\n```")

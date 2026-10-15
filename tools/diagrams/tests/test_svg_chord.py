@@ -64,3 +64,26 @@ def test_open_string_color_applies_to_open_marker():
     opens = by_class(root, "fb-open")
     assert "fb-red" in opens[0].get("class")
     assert "fb-red" not in opens[1].get("class")
+
+
+def test_long_name_widens_the_box_and_keeps_everything_inside():
+    name = "Cmaj7#11/G, drop 2 voicing with the root on the 5th string"
+    root = svg_of(f"name: {name}\nfrets: x 3 2 0 1 0")
+    _, _, w, h = (float(v) for v in root.get("viewBox").split())
+    title_el = by_class(root, "fb-title")[0]
+    half = len(name) * 7 / 2
+    assert 0 <= float(title_el.get("x")) - half and float(title_el.get("x")) + half <= w
+    for el in by_class(root, "fb-dot"):
+        cx, cy, r = (float(el.get(k)) for k in ("cx", "cy", "r"))
+        assert 0 <= cx - r and cx + r <= w and 0 <= cy - r and cy + r <= h
+
+
+def test_everything_inside_viewbox_for_barre_chord():
+    root = svg_of(BARRE_F)
+    _, _, w, h = (float(v) for v in root.get("viewBox").split())
+    for el in by_class(root, "fb-dot") + by_class(root, "fb-open"):
+        cx, cy, r = (float(el.get(k)) for k in ("cx", "cy", "r"))
+        assert 0 <= cx - r and cx + r <= w and 0 <= cy - r and cy + r <= h
+    barre = by_class(root, "fb-barre")[0]
+    x, y, bw, bh = (float(barre.get(k)) for k in ("x", "y", "width", "height"))
+    assert 0 <= x and x + bw <= w and 0 <= y and y + bh <= h

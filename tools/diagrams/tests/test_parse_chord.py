@@ -58,3 +58,8 @@ def test_no_fingers_means_no_labels():
 def test_errors(source, message):
     with pytest.raises(DiagramError, match=message):
         parse_chord(source)
+
+
+def test_non_ascii_digit_barre_is_rejected():
+    with pytest.raises(DiagramError, match="line 2: bad barre"):
+        parse_chord("frets: 1 3 3 2 1 1\nbarre: ²")

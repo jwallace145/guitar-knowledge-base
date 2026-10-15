@@ -154,7 +154,7 @@ def parse_chord(source: str) -> Chord:
                 if token not in _FINGERS:
                     raise DiagramError(f"line {number}: bad finger {token!r}, expected - or 1-4")
         elif key == "barre":
-            if not value.isdigit() or not 1 <= int(value) <= MAX_FRET:
+            if not value.isdecimal() or not 1 <= int(value) <= MAX_FRET:
                 raise DiagramError(f"line {number}: bad barre {value!r}, expected a fret 1-{MAX_FRET}")
             barre = int(value)
         elif key == "color":
