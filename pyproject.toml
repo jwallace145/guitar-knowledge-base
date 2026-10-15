@@ -1,6 +1,6 @@
 [project]
 name = "guitar-knowledge-base"
-version = "0.2.0" # x-release-please-version
+version = "0.3.0" # x-release-please-version
 description = "A guitar theory and study knowledge base, built with Zensical"
 readme = "README.md"
 license = "MIT"
