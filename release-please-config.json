@@ -7,7 +7,14 @@
       "release-type": "simple",
       "initial-version": "0.1.0",
       "changelog-path": "CHANGELOG.md",
-      "extra-files": ["pyproject.toml"]
+      "extra-files": [
+        "pyproject.toml",
+        {
+          "type": "toml",
+          "path": "uv.lock",
+          "jsonpath": "$.package[?(@.name=='guitar-knowledge-base')].version"
+        }
+      ]
     }
   }
 }
