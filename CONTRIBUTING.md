@@ -149,7 +149,9 @@ Releases are automated with [Release Please](https://github.com/googleapis/relea
 
 - On every push to `main`, Release Please reads the conventional commits since the last
   release and opens or updates a release PR authored by `jwallace145-release-bot[bot]`.
-  That PR bumps `version.txt` and `pyproject.toml` and updates `CHANGELOG.md`.
+  That PR bumps `version.txt`, `pyproject.toml`, and the root project's version in
+  `uv.lock`, and updates `CHANGELOG.md`. CI syncs with `--locked`, so a lockfile that
+  disagrees with `pyproject.toml` fails the build instead of drifting silently.
 - `feat` bumps the minor version, `fix` bumps the patch, and `!` marks a breaking
   change. While the project is below 1.0.0, breaking changes bump the minor version.
 - Merging the release PR creates the git tag and GitHub release.
