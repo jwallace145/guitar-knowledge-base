@@ -163,7 +163,7 @@ which renders the shared Terraform stack, keeps the state in the shared bucket, 
 content and invalidates CloudFront.
 
 The three workflows call that repository's reusable workflows, pinned to an exact tag
-(`@v0.7.0`) that Dependabot bumps: `site-plan.yml` validates the file and posts a plan
+(`@v0.8.0`) that Dependabot bumps: `site-plan.yml` validates the file and posts a plan
 comment on every PR, `site-preview.yml` publishes and removes previews, and
 `site-release-please.yml` plus `site-deploy.yml` release and deploy. Nobody applies or
 publishes locally; the CLI refuses credentials other than the CI roles. Infrastructure
