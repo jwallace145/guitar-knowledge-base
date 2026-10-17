@@ -1,9 +1,10 @@
 # Instructions for coding agents
 
 This repository is a Zensical static site: Markdown in `docs/`, config in
-`zensical.toml`, Python tooling via `uv`, served from S3 + CloudFront by the Terraform
-in `infra/`. Read [CONTRIBUTING.md](CONTRIBUTING.md) for the
-full workflow. The rules below are the ones you MUST follow.
+`zensical.toml`, Python tooling via `uv`, served from S3 + CloudFront. The
+infrastructure is one file, `jwall-engineering-sites.yaml`, managed by the
+`jwall-engineering-sites` CLI from `jwallace145/jwall-engineering-infra`. Read
+[CONTRIBUTING.md](CONTRIBUTING.md) for the full workflow. The rules below are the ones you MUST follow.
 
 ## Never push to `main`
 
@@ -65,13 +66,18 @@ gh pr create --template ci.md        # workflows and automation
 
 ## Infrastructure rules
 
-- **Never run `terraform apply`.** Applies happen only in the `deploy` job when a
-  release PR is merged. Local `fmt`, `validate`, `tflint` and read-only plans are fine.
-- **Module pins are exact** (`version = "0.6.0"`, not `~>`) in `infra/context.tf` and
-  `infra/main.tf`. Bump both together. Never switch a module to a git or local source;
-  fix module bugs upstream in `jwallace145/terraform-aws-jwall-engineering`.
-- **Do not add `ignore_changes`, `-lock=false`, or widen an IAM policy** to make a plan
-  pass. Explain the diff in the PR.
+- **There is no Terraform in this repository.** `jwall-engineering-sites.yaml` is the
+  whole description: project, repository, domain, the six required tags, the build
+  output directory and preview settings. Change it there; the CLI validates it and
+  fails fast on anything missing. Infrastructure behaviour lives upstream in
+  `jwallace145/jwall-engineering-infra` (the CLI and reusable workflows) and
+  `jwallace145/terraform-aws-jwall-engineering` (the modules); fix it there.
+- **Never apply or publish from a machine.** Applies and publishes happen only in the
+  reusable `deploy` workflow when a release PR is merged, as the apply role in the
+  `prod` environment.
+- **The reusable workflow refs are exact tags** (`@v0.7.0`) in the three workflow files.
+  Dependabot bumps them; bump all three together. The workflow at a tag runs the CLI
+  image of the same tag.
 - **The plan and preview jobs declare no GitHub environment** and the deploy job runs in
   `prod`; the OIDC role trust depends on it.
 - **Owner-only steps** (AWS credentials, GitHub environments, repository variables, DNS
@@ -84,5 +90,4 @@ uv sync
 uv run zensical serve
 uv run zensical build --strict
 npx commitlint --from main        # lint your branch's commits before pushing
-cd infra && terraform fmt -check -recursive && terraform init -backend=false && terraform validate && tflint
 ```

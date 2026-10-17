@@ -154,24 +154,20 @@ links and the sitemap point at the production host.
 
 ## Infrastructure
 
-The site is served from S3 + CloudFront, described in Terraform under
-[`infra/`](infra/) using the shared
-[`jwallace145/jwall-engineering/aws`](https://registry.terraform.io/modules/jwallace145/jwall-engineering/aws/latest)
-registry module. CI runs `terraform fmt`, `terraform validate` and `tflint` on every PR,
-and posts a `terraform plan` comment when `infra/` changed. Applies happen only in the
-`deploy` job when a release PR is merged; nobody applies locally.
+The site is served from S3 + CloudFront. This repository holds no Terraform: the
+infrastructure is described by [`jwall-engineering-sites.yaml`](jwall-engineering-sites.yaml)
+(project, repository, domain, the six required tags, the build output directory and
+preview settings) and managed by the `jwall-engineering-sites` CLI from
+[jwall-engineering-infra](https://github.com/jwallace145/jwall-engineering-infra),
+which renders the shared Terraform stack, keeps the state in the shared bucket, syncs
+content and invalidates CloudFront.
 
-```sh
-cd infra
-terraform fmt -check -recursive
-terraform init -backend=false && terraform validate
-tflint --init && tflint
-```
-
-Module versions are pinned exactly in `infra/context.tf` and `infra/main.tf`; bump both
-together, and never switch a module to a git or local source. Do not add
-`ignore_changes`, `-lock=false`, or widen an IAM policy to make a plan pass; explain the
-diff in the PR instead. See [infra/README.md](infra/README.md).
+The three workflows call that repository's reusable workflows, pinned to an exact tag
+(`@v0.7.0`) that Dependabot bumps: `site-plan.yml` validates the file and posts a plan
+comment on every PR, `site-preview.yml` publishes and removes previews, and
+`site-release-please.yml` plus `site-deploy.yml` release and deploy. Nobody applies or
+publishes locally; the CLI refuses credentials other than the CI roles. Infrastructure
+behaviour is changed upstream, not here.
 
 ## Releases and deploys
 
@@ -187,8 +183,8 @@ Releases are automated with [Release Please](https://github.com/googleapis/relea
 - Merging the release PR creates the git tag and GitHub release.
 - `CHANGELOG.md` is owned by Release Please. Do not edit it by hand.
 
-Merging the release PR is also the deploy. The `deploy` job in the same workflow checks
-out the tag, runs `terraform apply` in `infra/`, builds the site, syncs it to the `prod/`
-prefix of the site bucket and invalidates CloudFront, so
+Merging the release PR is also the deploy. The same workflow builds the site at the
+tag and hands it to the reusable `deploy` workflow, which applies the infrastructure,
+syncs the build to the `prod/` prefix of the site bucket and invalidates CloudFront, so
 <https://guitar.jwall.engineering/> always serves a tagged release. The Release workflow
 can also be run manually to redeploy the latest (or a chosen) tag.

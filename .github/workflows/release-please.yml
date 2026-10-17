@@ -1,12 +1,10 @@
 name: Release
 
-# Merges to main accumulate in a Release Please PR. Merging that PR is the
-# deliberate, human-reviewed act that releases a tag and deploys the site:
-# the deploy job applies infra/ and publishes the tag's build to S3 +
-# CloudFront. Nothing reaches production without that merge.
-#
-# workflow_dispatch redeploys an existing release (latest by default) without
-# touching Release Please.
+# Merges to main accumulate in a Release Please PR; merging it creates a tag
+# and deploys it. `workflow_dispatch` re-deploys a tag (defaults to the latest
+# release). The build is this repo's; applying the infrastructure, publishing
+# prod/ and invalidating CloudFront are the jwall-engineering-sites reusable
+# workflow, which runs as the apply role in the prod environment.
 
 on:
   push:
@@ -24,44 +22,19 @@ concurrency:
   group: release
   cancel-in-progress: false
 
-env:
-  AWS_REGION: us-east-1
-  TF_IN_AUTOMATION: "true"
-  TF_INPUT: "0"
-  SITE_URL: https://guitar.jwall.engineering/
-
 jobs:
   release-please:
     name: release-please
     if: github.event_name == 'push'
-    runs-on: ubuntu-latest
+    uses: jwallace145/jwall-engineering-infra/.github/workflows/site-release-please.yml@v0.7.0
+    secrets: inherit
     permissions:
       contents: write
       pull-requests: write
-    outputs:
-      release_created: ${{ steps.rp.outputs.release_created }}
-      tag_name: ${{ steps.rp.outputs.tag_name }}
-    steps:
-      # A GitHub App token makes jwallace145-release-bot[bot] the author of release PRs
-      # and lets CI run on them. PRs opened with GITHUB_TOKEN do not trigger workflows.
-      - uses: actions/create-github-app-token@v3
-        id: app-token
-        with:
-          client-id: ${{ secrets.RELEASE_BOT_CLIENT_ID }}
-          private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
-      - uses: googleapis/release-please-action@v5
-        id: rp
-        with:
-          token: ${{ steps.app-token.outputs.token }}
-          config-file: release-please-config.json
-          manifest-file: .release-please-manifest.json
 
-  deploy:
-    name: deploy
+  tag:
+    name: resolve tag
     needs: release-please
-    # Runs when this push created a release, or on manual dispatch. The
-    # release is created with the app token, so a separate `release`-triggered
-    # workflow would not reliably fire; the deploy lives here instead.
     if: >-
       !cancelled() &&
       (
@@ -71,13 +44,10 @@ jobs:
         github.event_name == 'workflow_dispatch'
       )
     runs-on: ubuntu-latest
-    # The apply role trusts the `environment:prod` OIDC subject.
-    environment:
-      name: prod
-      url: ${{ env.SITE_URL }}
     permissions:
       contents: read
-      id-token: write # OIDC token for the apply role
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
     steps:
       - name: Resolve release tag
         id: tag
@@ -85,7 +55,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
           EVENT_NAME: ${{ github.event_name }}
-          RELEASE_TAG: ${{ needs.release-please.outputs.tag_name }}
+          RELEASE_TAG: ${{ needs.release-please.outputs.tag }}
           INPUT_TAG: ${{ inputs.tag }}
         run: |
           if [ "$EVENT_NAME" = "push" ]; then
@@ -102,65 +72,36 @@ jobs:
           echo "Deploying $tag"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
+  build:
+    name: build
+    needs: tag
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
       - uses: actions/checkout@v7
         with:
-          ref: refs/tags/${{ steps.tag.outputs.tag }}
-
-      - uses: aws-actions/configure-aws-credentials@v6
-        with:
-          role-to-assume: ${{ vars.AWS_APPLY_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
-          role-session-name: gha-deploy-${{ steps.tag.outputs.tag }}
-
-      # --- Infrastructure -------------------------------------------------
-      - uses: hashicorp/setup-terraform@v4
-        with:
-          terraform_version: "~1.14"
-          terraform_wrapper: false
-      - name: terraform init
-        run: terraform init -backend-config=backend/prod.hcl
-        working-directory: infra
-      - name: terraform plan
-        run: terraform plan -no-color -lock-timeout=120s -out=tfplan
-        working-directory: infra
-      - name: terraform apply
-        run: terraform apply -no-color -lock-timeout=120s tfplan
-        working-directory: infra
-      - name: Read stack outputs
-        id: stack
-        run: |
-          echo "bucket=$(terraform output -raw bucket_name)" >> "$GITHUB_OUTPUT"
-          echo "distribution_id=$(terraform output -raw prod_distribution_id)" >> "$GITHUB_OUTPUT"
-        working-directory: infra
-
-      # --- Site -----------------------------------------------------------
+          ref: refs/tags/${{ needs.tag.outputs.tag }}
       - uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
       - run: uv sync --frozen
       - run: uv run zensical build --strict --clean
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: site
+          retention-days: 1
 
-      - name: Sync to S3
-        env:
-          S3_BUCKET: ${{ steps.stack.outputs.bucket }}
-        run: .github/scripts/sync-site.sh site "s3://$S3_BUCKET/prod/" 3600
-
-      - name: Invalidate CloudFront
-        env:
-          DISTRIBUTION_ID: ${{ steps.stack.outputs.distribution_id }}
-        run: |
-          aws cloudfront create-invalidation \
-            --distribution-id "$DISTRIBUTION_ID" \
-            --paths "/*" \
-            --query 'Invalidation.Id' --output text
-
-      - name: Summary
-        env:
-          TAG: ${{ steps.tag.outputs.tag }}
-        run: |
-          {
-            echo "## Deployed $TAG"
-            echo
-            echo "- Site: $SITE_URL"
-            echo "- Terraform applied, bucket synced, CloudFront invalidation created."
-          } >> "$GITHUB_STEP_SUMMARY"
+  deploy:
+    name: deploy
+    needs: [tag, build]
+    uses: jwallace145/jwall-engineering-infra/.github/workflows/site-deploy.yml@v0.7.0
+    with:
+      artifact: site
+      tag: ${{ needs.tag.outputs.tag }}
+      apply-role-arn: ${{ vars.AWS_APPLY_ROLE_ARN }}
+      site-url: https://guitar.jwall.engineering/
+    permissions:
+      contents: read
+      id-token: write # the apply role, through OIDC
