@@ -62,126 +62,17 @@ jobs:
       - run: uv run pytest
       - run: uv run zensical build --strict --clean
 
-  terraform:
-    name: terraform
-    # Always runs (so it can be a required check); needs no AWS credentials.
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    defaults:
-      run:
-        working-directory: infra
-    steps:
-      - uses: actions/checkout@v7
-      - uses: hashicorp/setup-terraform@v4
-        with:
-          terraform_version: "~1.14"
-      - run: terraform fmt -check -recursive -diff
-      - run: terraform init -backend=false -input=false
-      - run: terraform validate -no-color
-      - uses: terraform-linters/setup-tflint@v6
-        with:
-          tflint_version: latest
-      - run: tflint --init
-      - run: tflint
-
-  terraform-plan:
-    name: terraform plan
-    # Shows what an infra/ change would do to prod before merge. Fork PRs
-    # receive no OIDC token, so the job only runs for branches in this
-    # repository. Informational: not a required check.
+  plan:
+    name: plan
+    # The sites CLI validates jwall-engineering-sites.yaml and plans the
+    # infrastructure as the plan role; the plan is a sticky PR comment.
     if: >-
       github.event.action != 'edited' &&
       github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: ubuntu-latest
+    uses: jwallace145/jwall-engineering-infra/.github/workflows/site-plan.yml@v0.7.0
+    with:
+      plan-role-arn: ${{ vars.AWS_PLAN_ROLE_ARN }}
     permissions:
       contents: read
-      id-token: write # OIDC token for the read-only plan role
-      pull-requests: write # sticky plan comment
-    env:
-      TF_IN_AUTOMATION: "true"
-      TF_INPUT: "0"
-      AWS_REGION: us-east-1
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-
-      - name: Detect infra changes
-        id: changes
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        run: |
-          if git diff --quiet "$BASE_SHA" "$HEAD_SHA" -- infra/; then
-            echo "infra=false" >> "$GITHUB_OUTPUT"
-            echo "No changes under infra/, skipping Terraform plan."
-          else
-            echo "infra=true" >> "$GITHUB_OUTPUT"
-          fi
-
-      - uses: hashicorp/setup-terraform@v4
-        if: steps.changes.outputs.infra == 'true'
-        with:
-          terraform_version: "~1.14"
-          terraform_wrapper: false
-
-      - uses: aws-actions/configure-aws-credentials@v6
-        if: steps.changes.outputs.infra == 'true'
-        with:
-          role-to-assume: ${{ vars.AWS_PLAN_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
-          role-session-name: gha-plan-pr-${{ github.event.pull_request.number }}
-
-      - name: terraform init
-        if: steps.changes.outputs.infra == 'true'
-        run: terraform init -backend-config=backend/prod.hcl
-        working-directory: infra
-
-      - name: terraform plan
-        if: steps.changes.outputs.infra == 'true'
-        id: plan
-        # 0 = no changes, 2 = changes, anything else = error. The plan role
-        # may write the state lock, so locking stays on.
-        run: |
-          set +e
-          terraform plan -no-color -lock-timeout=60s -detailed-exitcode > plan.log 2>&1
-          code=$?
-          set -e
-          echo "exitcode=$code" >> "$GITHUB_OUTPUT"
-          cat plan.log
-          [ "$code" -eq 0 ] || [ "$code" -eq 2 ]
-        working-directory: infra
-
-      - name: Build plan comment
-        if: always() && steps.plan.outcome != 'skipped'
-        env:
-          EXITCODE: ${{ steps.plan.outputs.exitcode }}
-          SHA: ${{ github.event.pull_request.head.sha }}
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: |
-          {
-            case "$EXITCODE" in
-              0) echo "### Terraform plan: no changes" ;;
-              2) echo "### Terraform plan: changes pending" ;;
-              *) echo "### Terraform plan: failed" ;;
-            esac
-            echo
-            echo "Commit $SHA · [workflow run]($RUN_URL)"
-            echo
-            echo "<details><summary>Show plan</summary>"
-            echo
-            echo '```hcl'
-            # GitHub comments cap at 65536 chars; keep the tail, which holds the summary.
-            tail -c 60000 infra/plan.log
-            echo '```'
-            echo
-            echo "</details>"
-          } > plan-comment.md
-
-      - name: Post plan comment (updated on each push)
-        if: always() && steps.plan.outcome != 'skipped'
-        uses: marocchino/sticky-pull-request-comment@v3
-        with:
-          header: terraform-plan
-          path: plan-comment.md
+      id-token: write # the plan role, through OIDC
+      pull-requests: write # the sticky plan comment

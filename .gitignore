@@ -31,3 +31,8 @@ node_modules/
 
 # Brainstorming companion sessions
 .superpowers/
+
+# jwall-engineering-sites run artifacts (plan text, comments, debug log)
+.jwall-engineering-sites/
+.jwall-engineering-sites-dist/
+.jwall-engineering-infra/

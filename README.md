@@ -21,9 +21,12 @@ Add `--strict` to `zensical build` to fail on warnings, which is what CI does.
 ## Deploying
 
 Every pull request gets a live preview at `https://pr-<n>.preview.guitar.jwall.engineering/`.
-Merging a Release Please release PR tags a version, applies the Terraform in
-[`infra/`](infra/) and publishes that tag to production. See
-[CONTRIBUTING.md](CONTRIBUTING.md#releases-and-deploys) and [infra/README.md](infra/README.md).
+Merging a Release Please release PR tags a version, applies the site's
+infrastructure and publishes that tag to production. The infrastructure is
+described by [`jwall-engineering-sites.yaml`](jwall-engineering-sites.yaml) and
+managed by the `jwall-engineering-sites` CLI from
+[jwall-engineering-infra](https://github.com/jwallace145/jwall-engineering-infra).
+See [CONTRIBUTING.md](CONTRIBUTING.md#releases-and-deploys).
 
 ## Contributing
 
