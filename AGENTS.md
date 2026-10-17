@@ -75,7 +75,7 @@ gh pr create --template ci.md        # workflows and automation
 - **Never apply or publish from a machine.** Applies and publishes happen only in the
   reusable `deploy` workflow when a release PR is merged, as the apply role in the
   `prod` environment.
-- **The reusable workflow refs are exact tags** (`@v0.7.0`) in the three workflow files.
+- **The reusable workflow refs are exact tags** (`@v0.8.0`) in the three workflow files.
   Dependabot bumps them; bump all three together. The workflow at a tag runs the CLI
   image of the same tag.
 - **The plan and preview jobs declare no GitHub environment** and the deploy job runs in
