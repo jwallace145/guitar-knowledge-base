@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/jwallace145/guitar-knowledge-base/compare/v0.4.0...v0.5.0) (2026-10-17)
+
+
+### Features
+
+* **ci:** manage the infrastructure with jwall-engineering-sites ([#18](https://github.com/jwallace145/guitar-knowledge-base/issues/18)) ([6afe910](https://github.com/jwallace145/guitar-knowledge-base/commit/6afe91041fc92729409606834a7c1d24b2aa2425))
+
 ## [0.4.0](https://github.com/jwallace145/guitar-knowledge-base/compare/v0.3.0...v0.4.0) (2026-10-15)
 
 
