@@ -1,0 +1,31 @@
+name: PR title
+
+# Lints the pull request title as a Conventional Commits header, because a
+# squash merge uses the title as the commit message on main.
+#
+# This is a separate workflow from CI because it has to re-run when the title
+# changes (`edited`) and CI must not. Only this workflow listens for `edited`.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+
+permissions: {}
+
+jobs:
+  pr-title-lint:
+    name: PR title lint
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Lint the PR title as a commit header
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: printf '%s\n' "$PR_TITLE" | npx commitlint --verbose
