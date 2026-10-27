@@ -1,8 +1,13 @@
 name: CI
 
+# Does not run on `edited`: a title change must not start a newer CI run.
+# GitHub evaluates required checks against the newest run of each workflow,
+# and the `plan` job cannot run on `edited`, so a title edit used to leave the
+# required `plan / jwall-engineering-sites plan` check "Expected" forever.
+# The PR title is linted by pr-title.yml, which does run on `edited`.
 on:
   pull_request:
-    types: [opened, synchronize, reopened, edited]
+    types: [opened, synchronize, reopened]
 
 permissions: {}
 
@@ -11,7 +16,7 @@ jobs:
     name: commitlint
     runs-on: ubuntu-latest
     # Dependabot writes multi-line commit bodies that cannot be changed. Its PRs are
-    # squash-merged, so the PR title lint below still governs what lands on main.
+    # squash-merged, so the PR title lint in pr-title.yml still governs what lands on main.
     if: github.event.pull_request.user.login != 'dependabot[bot]'
     permissions:
       contents: read
@@ -31,23 +36,6 @@ jobs:
           --to ${{ github.event.pull_request.head.sha }}
           --verbose
 
-  pr-title-lint:
-    name: PR title lint
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
-          cache: npm
-      - run: npm ci
-      - name: Lint the PR title as a commit header
-        env:
-          PR_TITLE: ${{ github.event.pull_request.title }}
-        run: printf '%s\n' "$PR_TITLE" | npx commitlint --verbose
-
   build:
     name: build
     runs-on: ubuntu-latest
@@ -66,9 +54,8 @@ jobs:
     name: plan
     # The sites CLI validates jwall-engineering-sites.yaml and plans the
     # infrastructure as the plan role; the plan is a sticky PR comment.
-    if: >-
-      github.event.action != 'edited' &&
-      github.event.pull_request.head.repo.full_name == github.repository
+    # Fork PRs get no OIDC token, so only branches of this repository plan.
+    if: github.event.pull_request.head.repo.full_name == github.repository
     uses: jwallace145/jwall-engineering-infra/.github/workflows/site-plan.yml@v0.8.0
     with:
       plan-role-arn: ${{ vars.AWS_PLAN_ROLE_ARN }}
