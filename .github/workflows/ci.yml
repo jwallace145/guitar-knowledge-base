@@ -56,7 +56,7 @@ jobs:
     # infrastructure as the plan role; the plan is a sticky PR comment.
     # Fork PRs get no OIDC token, so only branches of this repository plan.
     if: github.event.pull_request.head.repo.full_name == github.repository
-    uses: jwallace145/jwall-engineering-infra/.github/workflows/site-plan.yml@v0.8.0
+    uses: jwallace145/jwall-engineering-infra/.github/workflows/site-plan.yml@v0.10.1
     with:
       plan-role-arn: ${{ vars.AWS_PLAN_ROLE_ARN }}
     permissions:
