@@ -26,7 +26,7 @@ jobs:
   release-please:
     name: release-please
     if: github.event_name == 'push'
-    uses: jwallace145/jwall-engineering-infra/.github/workflows/site-release-please.yml@v0.8.0
+    uses: jwallace145/jwall-engineering-infra/.github/workflows/site-release-please.yml@v0.10.1
     secrets: inherit
     permissions:
       contents: write
@@ -96,7 +96,7 @@ jobs:
   deploy:
     name: deploy
     needs: [tag, build]
-    uses: jwallace145/jwall-engineering-infra/.github/workflows/site-deploy.yml@v0.8.0
+    uses: jwallace145/jwall-engineering-infra/.github/workflows/site-deploy.yml@v0.10.1
     with:
       artifact: site
       tag: ${{ needs.tag.outputs.tag }}
