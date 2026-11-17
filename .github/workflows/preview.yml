@@ -2,7 +2,7 @@ name: Preview
 
 # Every pull request from this repository gets a preview at
 # https://pr-<n>.preview.guitar.jwall.engineering/. The build is this repo's;
-# publishing and cleanup are the jwall-engineering-sites reusable workflow,
+# publishing and cleanup are the Jaws reusable workflow,
 # which runs as the preview role and writes previews/pr-<n>/ in the site bucket.
 
 on:
@@ -44,7 +44,7 @@ jobs:
       !cancelled() &&
       github.event.pull_request.head.repo.full_name == github.repository &&
       (github.event.action == 'closed' || needs.build.result == 'success')
-    uses: jwallace145/jwall-engineering-infra/.github/workflows/site-preview.yml@v0.10.1
+    uses: jwallace145/jaws/.github/workflows/site-preview.yml@v0.48.0
     with:
       artifact: site
       preview-role-arn: ${{ vars.AWS_PREVIEW_ROLE_ARN }}
