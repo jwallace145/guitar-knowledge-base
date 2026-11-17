@@ -155,10 +155,10 @@ links and the sitemap point at the production host.
 ## Infrastructure
 
 The site is served from S3 + CloudFront. This repository holds no Terraform: the
-infrastructure is described by [`jwall-engineering-sites.yaml`](jwall-engineering-sites.yaml)
+infrastructure is described by [`jaws.yaml`](jaws.yaml)
 (project, repository, domain, the six required tags, the build output directory and
-preview settings) and managed by the `jwall-engineering-sites` CLI from
-[jwall-engineering-infra](https://github.com/jwallace145/jwall-engineering-infra),
+preview settings) and managed by the `jaws` CLI from
+[jaws](https://github.com/jwallace145/jaws),
 which renders the shared Terraform stack, keeps the state in the shared bucket, syncs
 content and invalidates CloudFront.
 

@@ -3,7 +3,7 @@ name: CI
 # Does not run on `edited`: a title change must not start a newer CI run.
 # GitHub evaluates required checks against the newest run of each workflow,
 # and the `plan` job cannot run on `edited`, so a title edit used to leave the
-# required `plan / jwall-engineering-sites plan` check "Expected" forever.
+# required `plan / jaws plan` check "Expected" forever.
 # The PR title is linted by pr-title.yml, which does run on `edited`.
 on:
   pull_request:
@@ -52,11 +52,11 @@ jobs:
 
   plan:
     name: plan
-    # The sites CLI validates jwall-engineering-sites.yaml and plans the
+    # The jaws CLI validates jaws.yaml and plans the
     # infrastructure as the plan role; the plan is a sticky PR comment.
     # Fork PRs get no OIDC token, so only branches of this repository plan.
     if: github.event.pull_request.head.repo.full_name == github.repository
-    uses: jwallace145/jwall-engineering-infra/.github/workflows/site-plan.yml@v0.10.1
+    uses: jwallace145/jaws/.github/workflows/site-plan.yml@v0.48.0
     with:
       plan-role-arn: ${{ vars.AWS_PLAN_ROLE_ARN }}
     permissions:
