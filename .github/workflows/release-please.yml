@@ -75,6 +75,9 @@ jobs:
   build:
     name: build
     needs: tag
+    # release-please is skipped on a dispatch, and a skip spreads to every job
+    # downstream that has no condition of its own: say when to run.
+    if: ${{ !cancelled() && needs.tag.result == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -96,6 +99,7 @@ jobs:
   deploy:
     name: deploy
     needs: [tag, build]
+    if: ${{ !cancelled() && needs.tag.result == 'success' && needs.build.result == 'success' }}
     uses: jwallace145/jaws/.github/workflows/site-deploy.yml@v0.55.0
     with:
       artifact: site
