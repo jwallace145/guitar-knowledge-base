@@ -44,7 +44,7 @@ jobs:
       !cancelled() &&
       github.event.pull_request.head.repo.full_name == github.repository &&
       (github.event.action == 'closed' || needs.build.result == 'success')
-    uses: Jaws-Platform/jaws/.github/workflows/site-preview.yml@v0.55.0
+    uses: Jaws-Platform/jaws/.github/workflows/site-preview.yml@v0.73.0
     with:
       artifact: site
       preview-role-arn: ${{ vars.AWS_PREVIEW_ROLE_ARN }}
