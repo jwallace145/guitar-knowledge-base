@@ -3,7 +3,7 @@
 This repository is a Zensical static site: Markdown in `docs/`, config in
 `zensical.toml`, Python tooling via `uv`, served from S3 + CloudFront. The
 infrastructure is one file, `jaws.yaml`, managed by the
-`jaws` CLI from `jwallace145/jaws`. Read
+`jaws` CLI from `Jaws-Platform/jaws`. Read
 [CONTRIBUTING.md](CONTRIBUTING.md) for the full workflow. The rules below are the ones you MUST follow.
 
 ## Never push to `main`
@@ -70,7 +70,7 @@ gh pr create --template ci.md        # workflows and automation
   whole description: project, repository, domain, the six required tags, the build
   output directory and preview settings. Change it there; the CLI validates it and
   fails fast on anything missing. Infrastructure behaviour lives upstream in
-  `jwallace145/jaws` (the CLI and reusable workflows) and
+  `Jaws-Platform/jaws` (the CLI and reusable workflows) and
   `jwallace145/terraform-aws-jwall-engineering` (the modules); fix it there.
 - **Never apply or publish from a machine.** Applies and publishes happen only in the
   reusable `deploy` workflow when a release PR is merged, as the apply role in the
