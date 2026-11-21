@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/jwallace145/guitar-knowledge-base/compare/v0.5.0...v0.5.1) (2026-11-21)
+
+
+### Bug Fixes
+
+* **ci:** build and deploy a release dispatched by hand ([#35](https://github.com/jwallace145/guitar-knowledge-base/issues/35)) ([b20ccfa](https://github.com/jwallace145/guitar-knowledge-base/commit/b20ccfaf159d8a5097b2779f179056eb6bc0ac1e))
+
 ## [0.5.0](https://github.com/jwallace145/guitar-knowledge-base/compare/v0.4.0...v0.5.0) (2026-10-17)
 
 
