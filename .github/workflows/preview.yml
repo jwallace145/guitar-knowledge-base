@@ -48,6 +48,9 @@ jobs:
     with:
       artifact: site
       preview-role-arn: ${{ vars.AWS_PREVIEW_ROLE_ARN }}
+      app-client-id: ${{ vars.JAWS_APP_CLIENT_ID }} # comments come from the jaws-platform-comments app
+    secrets:
+      app-private-key: ${{ secrets.JAWS_APP_PRIVATE_KEY }}
     permissions:
       contents: read
       id-token: write # the preview role, through OIDC
