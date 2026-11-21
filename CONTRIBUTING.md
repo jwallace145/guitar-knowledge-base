@@ -158,7 +158,7 @@ The site is served from S3 + CloudFront. This repository holds no Terraform: the
 infrastructure is described by [`jaws.yaml`](jaws.yaml)
 (project, repository, domain, the six required tags, the build output directory and
 preview settings) and managed by the `jaws` CLI from
-[jaws](https://github.com/jwallace145/jaws),
+[jaws](https://github.com/Jaws-Platform/jaws),
 which renders the shared Terraform stack, keeps the state in the shared bucket, syncs
 content and invalidates CloudFront.
 

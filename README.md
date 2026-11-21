@@ -25,7 +25,7 @@ Merging a Release Please release PR tags a version, applies the site's
 infrastructure and publishes that tag to production. The infrastructure is
 described by [`jaws.yaml`](jaws.yaml) and
 managed by the `jaws` CLI from
-[jaws](https://github.com/jwallace145/jaws).
+[jaws](https://github.com/Jaws-Platform/jaws).
 See [CONTRIBUTING.md](CONTRIBUTING.md#releases-and-deploys).
 
 ## Contributing
