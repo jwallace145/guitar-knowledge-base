@@ -27,7 +27,11 @@ jobs:
     name: release-please
     if: github.event_name == 'push'
     uses: Jaws-Platform/jaws/.github/workflows/site-release-please.yml@v0.55.0
-    secrets: inherit
+    # By name: `secrets: inherit` reaches only a workflow in the same account
+    # or organization, and jaws lives in Jaws-Platform.
+    secrets:
+      RELEASE_BOT_CLIENT_ID: ${{ secrets.RELEASE_BOT_CLIENT_ID }}
+      RELEASE_BOT_PRIVATE_KEY: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
     permissions:
       contents: write
       pull-requests: write
