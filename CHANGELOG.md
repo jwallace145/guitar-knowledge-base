@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.2](https://github.com/jwallace145/guitar-knowledge-base/compare/v0.5.1...v0.5.2) (2026-11-21)
+
+
+### Build System
+
+* **deps:** bump zensical from 0.0.74 to 0.1.2 ([#33](https://github.com/jwallace145/guitar-knowledge-base/issues/33)) ([413538a](https://github.com/jwallace145/guitar-knowledge-base/commit/413538a0ac01ff34075c1b446c092352b6adc1d5))
+
 ## [0.5.1](https://github.com/jwallace145/guitar-knowledge-base/compare/v0.5.0...v0.5.1) (2026-11-21)
 
 
