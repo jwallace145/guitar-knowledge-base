@@ -56,7 +56,7 @@ jobs:
     # infrastructure as the plan role; the plan is a sticky PR comment.
     # Fork PRs get no OIDC token, so only branches of this repository plan.
     if: github.event.pull_request.head.repo.full_name == github.repository
-    uses: Jaws-Platform/jaws/.github/workflows/site-plan.yml@v0.73.0
+    uses: Jaws-Platform/jaws/.github/workflows/site-plan.yml@v0.76.0
     with:
       plan-role-arn: ${{ vars.AWS_PLAN_ROLE_ARN }}
       app-client-id: ${{ vars.JAWS_APP_CLIENT_ID }} # comments come from the jaws-platform-comments app
