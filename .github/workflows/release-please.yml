@@ -26,7 +26,7 @@ jobs:
   release-please:
     name: release-please
     if: github.event_name == 'push'
-    uses: Jaws-Platform/jaws/.github/workflows/site-release-please.yml@v0.76.0
+    uses: Jaws-Platform/jaws/.github/workflows/site-release-please.yml@v0.81.0
     # By name: `secrets: inherit` reaches only a workflow in the same account
     # or organization, and jaws lives in Jaws-Platform.
     secrets:
@@ -104,7 +104,7 @@ jobs:
     name: deploy
     needs: [tag, build]
     if: ${{ !cancelled() && needs.tag.result == 'success' && needs.build.result == 'success' }}
-    uses: Jaws-Platform/jaws/.github/workflows/site-deploy.yml@v0.76.0
+    uses: Jaws-Platform/jaws/.github/workflows/site-deploy.yml@v0.81.0
     with:
       artifact: site
       tag: ${{ needs.tag.outputs.tag }}
